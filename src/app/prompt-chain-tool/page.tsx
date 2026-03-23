@@ -236,11 +236,24 @@ export default function PromptChainTool() {
                     <div className="w-10 h-10 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-[10px] font-black text-blue-400 z-10 shrink-0">
                       {idx + 1}
                     </div>
-                    <div className="flex-1 bg-slate-800/50 border border-slate-700/50 rounded-2xl p-4 hover:border-slate-600 transition-colors">
-                      <p className="text-white text-sm font-medium italic">"{step.description}"</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Model:</span>
-                        <span className="text-[10px] font-mono text-blue-400">{step.llm_model_id}</span>
+                    <div className="flex-1 bg-slate-800/50 border border-slate-700/50 rounded-2xl p-4 hover:border-slate-600 transition-colors space-y-2">
+                      <div>
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-1">System Prompt:</span>
+                        <p className="text-white text-sm font-medium italic truncate">"{step.llm_system_prompt}"</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-1">User Prompt:</span>
+                        <p className="text-white/70 text-[13px] font-medium leading-relaxed italic line-clamp-2">"{step.llm_user_prompt}"</p>
+                      </div>
+                      <div className="flex items-center gap-4 mt-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Model:</span>
+                          <span className="text-[10px] font-mono text-blue-400">{step.llm_model_id}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Temp:</span>
+                          <span className="text-[10px] font-mono text-indigo-400">{step.llm_temperature}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
