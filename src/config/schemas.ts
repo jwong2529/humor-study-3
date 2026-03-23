@@ -55,6 +55,8 @@ export const tableSchemas: Record<string, TableSchema> = {
       { key: 'order_by', label: 'Order', type: 'number' },
       { key: 'description', label: 'Description/Prompt', type: 'textarea' },
       { key: 'llm_model_id', label: 'Model ID', type: 'text' },
+      { key: 'llm_input_type_id', label: 'Input Type ID', type: 'number' },
+      { key: 'llm_output_type_id', label: 'Output Type ID', type: 'number' },
     ]
   },
   terms: {
