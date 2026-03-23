@@ -36,11 +36,11 @@ export default function Sidebar() {
   if (isAuthPage) return null
 
   return (
-    <aside className="w-64 bg-[#1e293b] border-r border-slate-700/50 flex flex-col fixed inset-y-0 z-50 overflow-y-auto custom-scrollbar">
+    <aside className="w-64 bg-card border-r border-border flex flex-col fixed inset-y-0 z-50 overflow-y-auto custom-scrollbar shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)]">
       <div className="p-6">
-        <h1 className="text-xl font-black text-white tracking-tight uppercase italic">Flavor Factory</h1>
+        <h1 className="text-xl font-black text-foreground tracking-tight uppercase italic">Flavor Factory</h1>
         <div className="flex items-center justify-between mt-1">
-          <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold">Project 03</p>
+          <p className="text-[10px] text-foreground/40 uppercase tracking-[0.2em] font-bold">Project 03</p>
           <ThemeToggle />
         </div>
       </div>
@@ -48,7 +48,7 @@ export default function Sidebar() {
       <nav className="flex-1 px-4 pb-8 space-y-8">
         {navItems.map((group) => (
           <div key={group.group}>
-            <h2 className="px-3 text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4">
+            <h2 className="px-3 text-[11px] font-bold text-foreground/40 uppercase tracking-widest mb-4">
               {group.group}
             </h2>
             <div className="space-y-1">
@@ -61,11 +61,11 @@ export default function Sidebar() {
                     className={cn(
                       "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
                       isActive 
-                        ? "bg-blue-600/10 text-blue-400" 
-                        : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                        ? "bg-blue-600/10 text-blue-500 dark:text-blue-400 font-bold" 
+                        : "text-foreground/60 hover:bg-foreground/5 hover:text-foreground"
                     )}
                   >
-                    <item.icon className={cn("w-4 h-4", isActive ? "text-blue-400" : "text-slate-500")} />
+                    <item.icon className={cn("w-4 h-4", isActive ? "text-blue-500 dark:text-blue-400" : "text-foreground/40")} />
                     {item.name}
                   </Link>
                 )

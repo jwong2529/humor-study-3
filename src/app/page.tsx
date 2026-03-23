@@ -12,17 +12,17 @@ export default async function Dashboard() {
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-12 animate-in fade-in duration-700">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-700 pb-8">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border pb-8">
         <div className="space-y-2">
-          <h1 className="text-5xl font-black text-white italic tracking-tighter uppercase flex items-center gap-4">
+          <h1 className="text-5xl font-black text-foreground italic tracking-tighter uppercase flex items-center gap-4">
              Flavor <span className="text-blue-500">Factory</span>
           </h1>
-          <p className="text-slate-400 font-medium text-xl">Design, Reorder, and Test Your Humor Prompt Chains</p>
+          <p className="text-foreground/60 font-medium text-xl">Design, Reorder, and Test Your Humor Prompt Chains</p>
         </div>
         <div className="flex gap-4">
-           <div className="px-4 py-2 bg-slate-800/50 rounded-xl border border-slate-700 flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-green-400" />
-              <span className="text-xs font-black text-slate-300 uppercase tracking-widest">{user?.email}</span>
+           <div className="px-4 py-2 bg-foreground/5 rounded-xl border border-border flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-green-500 dark:text-green-400" />
+              <span className="text-xs font-black text-foreground/60 uppercase tracking-widest">{user?.email}</span>
            </div>
         </div>
       </header>
@@ -33,9 +33,9 @@ export default async function Dashboard() {
           { label: 'Prompt Steps', value: stepCount, icon: ListTree, color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
           { label: 'Total Captions', value: captionCount, icon: History, color: 'text-purple-400', bg: 'bg-purple-500/10' }
         ].map(stat => (
-          <div key={stat.label} className={stat.bg + " p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-all duration-300"}>
-            <stat.icon className="absolute -right-4 -bottom-4 w-32 h-32 opacity-10 group-hover:scale-110 transition-transform" />
-            <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em] mb-4">{stat.label}</h3>
+          <div key={stat.label} className={stat.bg + " p-8 rounded-[2.5rem] border border-border shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-all duration-300 bg-card"}>
+            <stat.icon className="absolute -right-4 -bottom-4 w-32 h-32 opacity-10 group-hover:scale-110 transition-transform text-foreground" />
+            <h3 className="text-xs font-black text-foreground/40 uppercase tracking-[0.3em] mb-4">{stat.label}</h3>
             <p className={stat.color + " text-6xl font-black italic tracking-tighter"}>{stat.value ?? 0}</p>
           </div>
         ))}
@@ -43,13 +43,13 @@ export default async function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Link href="/prompt-chain-tool" className="group bg-gradient-to-br from-blue-600 to-indigo-700 p-1 rounded-[3rem] shadow-2xl hover:shadow-blue-500/40 transition-all">
-          <div className="bg-[#0f172a]/40 backdrop-blur-xl h-full w-full rounded-[2.8rem] p-10 flex flex-col justify-between group-hover:bg-transparent transition-colors">
+          <div className="bg-card/40 dark:bg-[#0f172a]/40 backdrop-blur-xl h-full w-full rounded-[2.8rem] p-10 flex flex-col justify-between group-hover:bg-transparent transition-colors">
              <div className="space-y-4">
                 <div className="w-16 h-16 bg-white/10 rounded-3xl flex items-center justify-center backdrop-blur-md">
                    <Play className="w-8 h-8 text-white" />
                 </div>
                 <h2 className="text-3xl font-black text-white uppercase italic tracking-tight">Launch Prompt Tool</h2>
-                <p className="text-white/60 font-medium">Test your flavor chains on the image test set and see the results instantly.</p>
+                <p className="text-white/80 font-medium">Test your flavor chains on the image test set and see the results instantly.</p>
              </div>
              <div className="mt-12 flex items-center gap-2 text-white font-black uppercase tracking-widest text-xs">
                 Enter Chain Lab <span className="group-hover:translate-x-2 transition-transform">→</span>
@@ -58,27 +58,27 @@ export default async function Dashboard() {
         </Link>
 
         <div className="grid grid-cols-1 gap-8">
-           <Link href="/humor-flavors" className="group bg-slate-800/50 border border-slate-700/50 p-8 rounded-[2.5rem] hover:bg-slate-800 transition-all flex items-center justify-between">
+           <Link href="/humor-flavors" className="group bg-card border border-border p-8 rounded-[2.5rem] hover:bg-foreground/5 transition-all flex items-center justify-between shadow-xl">
               <div className="flex items-center gap-6">
                  <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center">
-                    <Sparkles className="w-6 h-6 text-blue-400" />
+                    <Sparkles className="w-6 h-6 text-blue-500 dark:text-blue-400" />
                  </div>
                  <div>
-                    <h3 className="text-xl font-black text-white uppercase italic">Manage Flavors</h3>
-                    <p className="text-sm text-slate-500">Create and edit humor personalities</p>
+                    <h3 className="text-xl font-black text-foreground uppercase italic">Manage Flavors</h3>
+                    <p className="text-sm text-foreground/40">Create and edit humor personalities</p>
                  </div>
               </div>
               <ChevronIcon />
            </Link>
 
-           <Link href="/flavor-steps" className="group bg-slate-800/50 border border-slate-700/50 p-8 rounded-[2.5rem] hover:bg-slate-800 transition-all flex items-center justify-between">
+           <Link href="/flavor-steps" className="group bg-card border border-border p-8 rounded-[2.5rem] hover:bg-foreground/5 transition-all flex items-center justify-between shadow-xl">
               <div className="flex items-center gap-6">
                  <div className="w-14 h-14 bg-indigo-500/10 rounded-2xl flex items-center justify-center">
-                    <ListTree className="w-6 h-6 text-indigo-400" />
+                    <ListTree className="w-6 h-6 text-indigo-500 dark:text-indigo-400" />
                  </div>
                  <div>
-                    <h3 className="text-xl font-black text-white uppercase italic">Step Sequencer</h3>
-                    <p className="text-sm text-slate-500">Design the multi-stage logic chains</p>
+                    <h3 className="text-xl font-black text-foreground uppercase italic">Step Sequencer</h3>
+                    <p className="text-sm text-foreground/40">Design the multi-stage logic chains</p>
                  </div>
               </div>
               <ChevronIcon />

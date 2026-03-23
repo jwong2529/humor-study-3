@@ -126,8 +126,8 @@ export default function CRUDComponent({ tableKey }: CRUDProps) {
     <div className="space-y-6">
       <header className="flex justify-between items-center gap-6">
         <div>
-          <h2 className="text-2xl font-black text-white">{schema.name}</h2>
-          <p className="text-sm text-slate-400">Manage your {schema.name.toLowerCase()} records</p>
+          <h2 className="text-2xl font-black text-foreground">{schema.name}</h2>
+          <p className="text-sm text-foreground/50">Manage your {schema.name.toLowerCase()} records</p>
         </div>
         {!schema.readOnly && !isAdding && (
           <button 
@@ -147,8 +147,8 @@ export default function CRUDComponent({ tableKey }: CRUDProps) {
       )}
 
       {(isAdding || editingId) && (
-        <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+        <div className="bg-card border border-border rounded-2xl p-6 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300 shadow-xl">
+          <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
             {isAdding ? <Plus className="w-4 h-4 text-blue-400" /> : <Pencil className="w-4 h-4 text-blue-400" />}
             {isAdding ? 'Add New Record' : 'Edit Record'}
           </h3>
@@ -160,7 +160,7 @@ export default function CRUDComponent({ tableKey }: CRUDProps) {
                   <textarea 
                     value={formData[col.key] || ''}
                     onChange={(e) => handleInputChange(col.key, e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 outline-none min-h-[100px]"
+                    className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:border-blue-500 outline-none min-h-[100px]"
                   />
                 ) : col.type === 'boolean' ? (
                   <div className="flex items-center h-10">
@@ -168,7 +168,7 @@ export default function CRUDComponent({ tableKey }: CRUDProps) {
                       type="checkbox"
                       checked={!!formData[col.key]}
                       onChange={(e) => handleInputChange(col.key, e.target.checked)}
-                      className="w-4 h-4 bg-slate-900 border-slate-700 rounded"
+                      className="w-4 h-4 bg-background border-border rounded"
                     />
                   </div>
                 ) : (
@@ -176,7 +176,7 @@ export default function CRUDComponent({ tableKey }: CRUDProps) {
                     type={col.type === 'number' ? 'number' : 'text'}
                     value={formData[col.key] || ''}
                     onChange={(e) => handleInputChange(col.key, col.type === 'number' ? Number(e.target.value) : e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 outline-none"
+                    className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:border-blue-500 outline-none"
                   />
                 )}
               </div>
@@ -202,18 +202,18 @@ export default function CRUDComponent({ tableKey }: CRUDProps) {
         </div>
       )}
 
-      <div className="bg-[#1e293b] border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-800/50 border-b border-slate-700">
+              <tr className="bg-foreground/5 border-b border-border">
                 {schema.columns.map(col => (
                   <th key={col.key} className="p-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">{col.label}</th>
                 ))}
                 {!schema.readOnly && <th className="p-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">Actions</th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800">
+            <tbody className="divide-y divide-border/50">
               {loading && !data.length ? (
                 <tr>
                   <td colSpan={schema.columns.length + (schema.readOnly ? 0 : 1)} className="p-8 text-center">
@@ -229,7 +229,7 @@ export default function CRUDComponent({ tableKey }: CRUDProps) {
                 </tr>
               ) : (
                 data.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-800/30 transition-colors group">
+                  <tr key={item.id} className="hover:bg-foreground/5 transition-colors group">
                     {schema.columns.map(col => (
                       <td key={col.key} className="p-4 text-sm">
                         {col.type === 'boolean' ? (

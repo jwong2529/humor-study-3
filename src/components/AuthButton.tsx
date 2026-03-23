@@ -36,12 +36,12 @@ export default function AuthButton({ user }: AuthButtonProps) {
     <div className="flex gap-4 items-center">
       {user ? (
         <div className="flex items-center gap-4">
-          <span className="text-sm font-medium text-slate-300">
+          <span className="text-sm font-medium text-foreground/60">
             {user.email}
           </span>
           <button
             onClick={handleSignOut}
-            className="py-2 px-4 rounded-md no-underline bg-slate-700 hover:bg-slate-800 text-white text-sm transition-colors"
+            className="py-2 px-4 rounded-xl bg-foreground/10 hover:bg-foreground/20 text-foreground text-sm font-bold transition-colors"
           >
             Sign Out
           </button>

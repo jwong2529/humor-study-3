@@ -52,25 +52,25 @@ export default function CaptionsPage() {
 
   return (
     <main className="p-8 max-w-7xl mx-auto space-y-12 animate-in fade-in duration-700">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-700 pb-8">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border pb-8">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
              <div className="p-2 bg-purple-600/20 rounded-lg">
                 <FileText className="w-6 h-6 text-purple-400" />
              </div>
-             <h1 className="text-4xl font-black text-white italic tracking-tighter uppercase">Captions Registry</h1>
+             <h1 className="text-4xl font-black text-foreground italic tracking-tighter uppercase">Captions Registry</h1>
           </div>
-          <p className="text-slate-400 font-medium text-lg">History of all generated captions and experiments.</p>
+          <p className="text-foreground/60 font-medium text-lg">History of all generated captions and experiments.</p>
         </div>
 
         <div className="space-y-1">
-          <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-2 flex items-center gap-1">
+          <label className="text-[10px] font-black text-foreground/40 uppercase tracking-widest pl-2 flex items-center gap-1">
              <Search className="w-2 h-2" /> Filter by Flavor
           </label>
           <select
             value={selectedFlavorId}
             onChange={(e) => setSelectedFlavorId(e.target.value)}
-            className="w-64 bg-slate-900 border border-slate-700 rounded-2xl px-4 py-3 text-white focus:border-purple-500 outline-none transition-all cursor-pointer font-bold"
+            className="w-64 bg-background border border-border rounded-2xl px-4 py-3 text-foreground focus:border-purple-500 outline-none transition-all cursor-pointer font-bold"
           >
             <option value="all">All Humor Flavors</option>
             {flavors.map(flav => (
@@ -88,8 +88,8 @@ export default function CaptionsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {captions.map((cap) => (
-            <div key={cap.id} className="bg-[#1e293b] border border-slate-700 rounded-[2.5rem] overflow-hidden shadow-2xl hover:border-purple-500/50 transition-all group/card flex flex-col">
-              <div className="relative aspect-square bg-slate-900 overflow-hidden">
+            <div key={cap.id} className="bg-card border border-border rounded-[2.5rem] overflow-hidden shadow-2xl hover:border-purple-500/50 transition-all group/card flex flex-col">
+              <div className="relative aspect-square bg-background overflow-hidden">
                  {cap.images?.url ? (
                    <img src={cap.images.url} className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700 pointer-events-none" alt="context" />
                  ) : (
@@ -108,19 +108,19 @@ export default function CaptionsPage() {
               </div>
 
               <div className="p-8 space-y-6 flex-1 flex flex-col justify-between">
-                <div className="relative pl-6 border-l-4 border-slate-700 group-hover/card:border-purple-500 transition-all">
-                  <p className="text-lg text-white font-medium leading-relaxed italic">
+                <div className="relative pl-6 border-l-4 border-border group-hover/card:border-purple-500 transition-all">
+                  <p className="text-lg text-foreground font-medium leading-relaxed italic">
                      "{cap.content || "Empty caption"}"
                   </p>
                 </div>
 
-                <div className="space-y-4 pt-4 border-t border-slate-800">
-                  <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                <div className="space-y-4 pt-4 border-t border-border/50">
+                  <div className="flex items-center justify-between text-[10px] font-bold text-foreground/40 uppercase tracking-widest">
                     <div className="flex items-center gap-2">
                        <User className="w-3 h-3" /> {cap.profiles?.email?.split('@')[0] || "AI System"}
                     </div>
                     <div className="flex items-center gap-2">
-                       <Calendar className="w-3 h-3" /> {new Date(cap.created_datetime_utc).toLocaleDateString()}
+                       <Calendar className="w-3 h-3" /> {mounted && cap.created_datetime_utc ? new Date(cap.created_datetime_utc).toLocaleDateString() : 'N/A'}
                     </div>
                   </div>
                 </div>

@@ -52,19 +52,19 @@ function SortableItem({ step }: { step: Step }) {
     <div
       ref={setNodeRef}
       style={style}
-      className="bg-slate-800 border border-slate-700 rounded-2xl p-4 mb-3 flex items-center gap-4 group hover:border-blue-500/50 transition-colors shadow-lg"
+      className="bg-card border border-border rounded-2xl p-4 mb-3 flex items-center gap-4 group hover:border-blue-500/50 transition-colors shadow-lg"
     >
-      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-2 hover:bg-slate-700 rounded-lg transition-colors">
-        <GripVertical className="w-5 h-5 text-slate-500 group-hover:text-blue-400" />
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-2 hover:bg-foreground/5 rounded-lg transition-colors">
+        <GripVertical className="w-5 h-5 text-foreground/40 group-hover:text-blue-400" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-3 mb-1">
           <span className="bg-blue-500/10 text-blue-400 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">
             Step {step.order_by}
           </span>
-          <p className="text-sm text-slate-400 truncate font-mono text-[10px]">{step.id}</p>
+          <p className="text-sm text-foreground/40 truncate font-mono text-[10px]">{step.id}</p>
         </div>
-        <p className="text-white text-sm font-medium line-clamp-2">{step.description}</p>
+        <p className="text-foreground text-sm font-medium line-clamp-2">{step.description}</p>
       </div>
     </div>
   )
@@ -143,19 +143,19 @@ export default function ReorderSteps() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="bg-[#1e293b] border border-slate-700 rounded-3xl p-8 shadow-2xl overflow-hidden relative">
-        <div className="absolute top-0 right-0 p-8 opacity-5">
-           <Sparkles className="w-32 h-32" />
+      <div className="bg-card border border-border rounded-3xl p-8 shadow-2xl overflow-hidden relative">
+        <div className="absolute top-0 right-0 p-8 opacity-[0.03]">
+           <Sparkles className="w-32 h-32 text-foreground" />
         </div>
         
         <div className="relative z-10 space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-1">
-              <label className="text-xs font-black text-slate-500 uppercase tracking-[0.2em]">Select Flavor</label>
+              <label className="text-xs font-black text-foreground/40 uppercase tracking-[0.2em]">Select Flavor</label>
               <select
                 value={selectedFlavorId}
                 onChange={(e) => setSelectedFlavorId(e.target.value)}
-                className="w-full md:w-64 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-indigo-500 outline-none transition-all cursor-pointer"
+                className="w-full md:w-64 bg-background border border-border rounded-xl px-4 py-3 text-foreground focus:border-indigo-500 outline-none transition-all cursor-pointer"
               >
                 <option value="">Select a flavor...</option>
                 {flavors.map((f) => (

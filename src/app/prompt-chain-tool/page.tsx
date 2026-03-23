@@ -106,15 +106,15 @@ export default function PromptChainTool() {
 
   return (
     <main className="p-8 max-w-7xl mx-auto space-y-12 animate-in fade-in duration-700">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-700 pb-8">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border pb-8">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
              <div className="p-2 bg-blue-600/20 rounded-lg">
                 <Sparkles className="w-6 h-6 text-blue-400" />
              </div>
-             <h1 className="text-4xl font-black text-white italic tracking-tighter uppercase">Prompt Chain Tool</h1>
+             <h1 className="text-4xl font-black text-foreground italic tracking-tighter uppercase">Prompt Chain Tool</h1>
           </div>
-          <p className="text-slate-400 font-medium text-lg">Test your humor flavors and generate captions in real-time.</p>
+          <p className="text-foreground/60 font-medium text-lg">Test your humor flavors and generate captions in real-time.</p>
         </div>
       </header>
 
@@ -122,12 +122,12 @@ export default function PromptChainTool() {
         {/* CONFIGURATION COLUMN */}
         <div className="lg:col-span-5 space-y-8">
           {/* IMAGE SELECTION */}
-          <section className="bg-[#1e293b] border border-slate-700 rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
+          <section className="bg-card border border-border rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
               <ImageIcon className="w-24 h-24" />
             </div>
             <div className="relative z-10 space-y-6">
-              <h2 className="text-xl font-black text-white flex items-center gap-2 italic uppercase tracking-wider">
+              <h2 className="text-xl font-black text-foreground flex items-center gap-2 italic uppercase tracking-wider">
                 <span className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-[10px] font-bold">01</span>
                 Image Test Set
               </h2>
@@ -139,7 +139,7 @@ export default function PromptChainTool() {
                     onClick={() => setSelectedImageId(img.id)}
                     className={cn(
                       "aspect-square rounded-xl overflow-hidden border-2 transition-all relative group/img",
-                      selectedImageId === img.id ? "border-blue-500 shadow-xl shadow-blue-500/20 scale-105 z-10" : "border-slate-800 hover:border-slate-600"
+                      selectedImageId === img.id ? "border-blue-500 shadow-xl shadow-blue-500/20 scale-105 z-10" : "border-border/50 hover:border-border"
                     )}
                   >
                     <img src={img.url} className="w-full h-full object-cover" alt="test" />
@@ -156,12 +156,12 @@ export default function PromptChainTool() {
           </section>
 
           {/* FLAVOR SELECTION */}
-          <section className="bg-[#1e293b] border border-slate-700 rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
+          <section className="bg-card border border-border rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
              <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
               <Layers className="w-24 h-24" />
             </div>
             <div className="relative z-10 space-y-6">
-              <h2 className="text-xl font-black text-white flex items-center gap-2 italic uppercase tracking-wider">
+              <h2 className="text-xl font-black text-foreground flex items-center gap-2 italic uppercase tracking-wider">
                 <span className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-[10px] font-bold">02</span>
                 Humor Flavor
               </h2>
@@ -173,12 +173,12 @@ export default function PromptChainTool() {
                     onClick={() => setSelectedFlavorId(flav.id)}
                     className={cn(
                       "w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center justify-between group/flav",
-                      selectedFlavorId === flav.id ? "bg-indigo-600/10 border-indigo-500 shadow-lg shadow-indigo-500/10" : "bg-slate-900/50 border-slate-800 hover:border-slate-700"
+                      selectedFlavorId === flav.id ? "bg-indigo-600/10 border-indigo-500 shadow-lg shadow-indigo-500/10" : "bg-foreground/5 border-border/50 hover:border-border"
                     )}
                   >
                     <div>
-                      <h3 className={cn("font-black uppercase tracking-tight transition-colors", selectedFlavorId === flav.id ? "text-indigo-400" : "text-white")}>{flav.slug}</h3>
-                      <p className="text-xs text-slate-500 font-medium">{flav.description}</p>
+                      <h3 className={cn("font-black uppercase tracking-tight transition-colors", selectedFlavorId === flav.id ? "text-indigo-400" : "text-foreground")}>{flav.slug}</h3>
+                      <p className="text-xs text-foreground/50 font-medium">{flav.description}</p>
                     </div>
                     {selectedFlavorId === flav.id && <ChevronRight className="w-5 h-5 text-indigo-400" />}
                   </button>
@@ -224,26 +224,26 @@ export default function PromptChainTool() {
         <div className="lg:col-span-7 space-y-12">
           {/* CHAIN PREVIEW */}
           {selectedFlavorId && (
-            <section className="bg-slate-800/30 border border-slate-700 rounded-3xl p-8 backdrop-blur-xl">
-              <h2 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em] mb-8 flex items-center gap-2">
+            <section className="bg-card border border-border rounded-3xl p-8 backdrop-blur-xl">
+              <h2 className="text-xs font-black text-foreground/50 uppercase tracking-[0.3em] mb-8 flex items-center gap-2">
                 <ListTree className="w-4 h-4" />
                 Prompt Chain Sequence
               </h2>
               <div className="space-y-6 relative">
-                <div className="absolute left-[19px] top-6 bottom-6 w-0.5 bg-slate-700/50"></div>
+                <div className="absolute left-[19px] top-6 bottom-6 w-0.5 bg-border/50"></div>
                 {steps.map((step, idx) => (
                   <div key={step.id} className="flex gap-6 relative">
-                    <div className="w-10 h-10 rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-[10px] font-black text-blue-400 z-10 shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-background border-2 border-border flex items-center justify-center text-[10px] font-black text-blue-400 z-10 shrink-0 shadow-lg">
                       {idx + 1}
                     </div>
-                    <div className="flex-1 bg-slate-800/50 border border-slate-700/50 rounded-2xl p-4 hover:border-slate-600 transition-colors space-y-2">
+                    <div className="flex-1 bg-background border border-border rounded-2xl p-4 hover:border-foreground/20 transition-colors space-y-2 shadow-sm">
                       <div>
-                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-1">System Prompt:</span>
-                        <p className="text-white text-sm font-medium italic truncate">"{step.llm_system_prompt}"</p>
+                        <span className="text-[10px] font-black text-foreground/40 uppercase tracking-widest block mb-1">System Prompt:</span>
+                        <p className="text-foreground text-sm font-medium italic truncate">"{step.llm_system_prompt}"</p>
                       </div>
                       <div>
-                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-1">User Prompt:</span>
-                        <p className="text-white/70 text-[13px] font-medium leading-relaxed italic line-clamp-2">"{step.llm_user_prompt}"</p>
+                        <span className="text-[10px] font-black text-foreground/40 uppercase tracking-widest block mb-1">User Prompt:</span>
+                        <p className="text-foreground/70 text-[13px] font-medium leading-relaxed italic line-clamp-2">"{step.llm_user_prompt}"</p>
                       </div>
                       <div className="flex items-center gap-4 mt-2">
                         <div className="flex items-center gap-2">
@@ -265,7 +265,7 @@ export default function PromptChainTool() {
           {/* RESULTS */}
           {results.length > 0 || generating ? (
              <section className="space-y-8 h-full min-h-[500px]">
-                <h2 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em] mb-8 flex items-center gap-2">
+                <h2 className="text-xs font-black text-foreground/50 uppercase tracking-[0.3em] mb-8 flex items-center gap-2">
                   <History className="w-4 h-4" />
                   Generated Results
                 </h2>
@@ -281,18 +281,18 @@ export default function PromptChainTool() {
                 ) : (
                   <div className="grid grid-cols-1 gap-8">
                     {results.map((res, idx) => (
-                      <div key={idx} className="bg-[#1e293b] border border-slate-700 rounded-3xl overflow-hidden shadow-2xl group/card">
-                        <div className="bg-slate-800/80 px-6 py-4 flex justify-between items-center border-b border-slate-700">
-                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Option {idx + 1}</span>
+                      <div key={idx} className="bg-card border border-border rounded-3xl overflow-hidden shadow-2xl group/card">
+                        <div className="bg-foreground/5 px-6 py-4 flex justify-between items-center border-b border-border">
+                           <span className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">Option {idx + 1}</span>
                            <span className="bg-blue-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter italic">Premium Flavor</span>
                         </div>
                         <div className="flex flex-col md:flex-row">
-                          <div className="w-full md:w-64 aspect-square bg-slate-900 shrink-0">
+                          <div className="w-full md:w-64 aspect-square bg-background shrink-0">
                             {selectedImage && <img src={selectedImage.url} alt="context" className="w-full h-full object-contain" />}
                           </div>
                           <div className="p-8 flex-1 flex flex-col justify-center">
                             <div className="relative pl-6 border-l-4 border-blue-500/30 group-hover/card:border-blue-500 transition-all">
-                               <p className="text-xl text-white font-medium leading-relaxed italic">
+                               <p className="text-xl text-foreground font-medium leading-relaxed italic">
                                   {res.content || res.text || (typeof res === 'string' ? res : JSON.stringify(res))}
                                </p>
                             </div>
