@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { FileText, Search, Sparkles, User, Calendar, BrainCircuit } from 'lucide-react'
+import { FileText, Search, Sparkles, User, Calendar, BrainCircuit, Image as ImageIcon } from 'lucide-react'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
