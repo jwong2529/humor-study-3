@@ -57,6 +57,7 @@ export const tableSchemas: Record<string, TableSchema> = {
       { key: 'llm_model_id', label: 'Model ID', type: 'text' },
       { key: 'llm_input_type_id', label: 'Input Type ID', type: 'number' },
       { key: 'llm_output_type_id', label: 'Output Type ID', type: 'number' },
+      { key: 'humor_flavor_step_type_id', label: 'Step Type ID', type: 'number' },
     ]
   },
   terms: {
