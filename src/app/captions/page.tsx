@@ -15,7 +15,12 @@ export default function CaptionsPage() {
   const [flavors, setFlavors] = useState<any[]>([])
   const [selectedFlavorId, setSelectedFlavorId] = useState<string>('all')
   const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
   const supabase = createClient()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const fetchFlavors = async () => {
