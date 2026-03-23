@@ -126,13 +126,6 @@ export default function ReorderSteps() {
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
     
-    const updates = steps.map((step) => ({
-      id: step.id,
-      order_by: step.order_by,
-      modified_by_user_id: user?.id,
-      modified_datetime_utc: new Error().toISOString() // wait, actual DB uses now() but for RPC or batch update...
-    }))
-
     for (const update of steps) {
       await supabase
         .from('humor_flavor_steps')
