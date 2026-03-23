@@ -17,30 +17,14 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const navItems = [
-  { group: 'Main', items: [
+  { group: 'Prompt Chain Tool', items: [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    { name: 'Prompt Chain Tool', href: '/prompt-chain-tool', icon: LinkIcon },
-    { name: 'Profiles', href: '/users', icon: Users },
-    { name: 'Captions', href: '/captions', icon: FileText },
+    { name: 'Humor Lab', href: '/prompt-chain-tool', icon: LinkIcon },
+    { name: 'Captions Registry', href: '/captions', icon: FileText },
   ]},
-  { group: 'Content', items: [
-    { name: 'Images', href: '/images', icon: ImageIcon },
-    { name: 'Terms', href: '/terms', icon: Quote },
+  { group: 'Configuration', items: [
     { name: 'Humor Flavors', href: '/humor-flavors', icon: Sparkles },
     { name: 'Flavor Steps', href: '/flavor-steps', icon: ListTree },
-    { name: 'Humor Mix', href: '/humor-mix', icon: Blend },
-    { name: 'Caption Requests', href: '/caption-requests', icon: MessageSquare },
-    { name: 'Caption Examples', href: '/caption-examples', icon: HelpCircle },
-  ]},
-  { group: 'AI/LLM', items: [
-    { name: 'LLM Models', href: '/llm-models', icon: Cpu },
-    { name: 'LLM Providers', href: '/llm-providers', icon: Database },
-    { name: 'Prompt Chains', href: '/prompt-chains', icon: LinkIcon },
-    { name: 'LLM Responses', href: '/llm-responses', icon: Reply },
-  ]},
-  { group: 'Access', items: [
-    { name: 'Signup Domains', href: '/allowed-signup-domains', icon: Globe },
-    { name: 'Whitelisted Emails', href: '/whitelisted-emails', icon: Mail },
   ]},
 ]
 
@@ -54,9 +38,9 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-[#1e293b] border-r border-slate-700/50 flex flex-col fixed inset-y-0 z-50 overflow-y-auto custom-scrollbar">
       <div className="p-6">
-        <h1 className="text-xl font-black text-white tracking-tight">Humor Study Admin</h1>
+        <h1 className="text-xl font-black text-white tracking-tight uppercase italic">Flavor Factory</h1>
         <div className="flex items-center justify-between mt-1">
-          <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold">Data Management</p>
+          <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold">Project 03</p>
           <ThemeToggle />
         </div>
       </div>

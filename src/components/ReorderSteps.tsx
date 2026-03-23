@@ -133,10 +133,14 @@ export default function ReorderSteps() {
       modified_datetime_utc: new Error().toISOString() // wait, actual DB uses now() but for RPC or batch update...
     }))
 
-    for (const update of updates) {
+    for (const update of steps) {
       await supabase
         .from('humor_flavor_steps')
-        .update({ order_by: update.order_by, modified_by_user_id: update.modified_by_user_id })
+        .update({ 
+          order_by: update.order_by, 
+          modified_by_user_id: user?.id,
+          modified_datetime_utc: new Date().toISOString() 
+        })
         .eq('id', update.id)
     }
     

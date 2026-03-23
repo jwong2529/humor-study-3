@@ -15,9 +15,9 @@ export default async function Dashboard() {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-700 pb-8">
         <div className="space-y-2">
           <h1 className="text-5xl font-black text-white italic tracking-tighter uppercase flex items-center gap-4">
-             Humor Study <span className="text-blue-500">v3</span>
+             Flavor <span className="text-blue-500">Factory</span>
           </h1>
-          <p className="text-slate-400 font-medium text-xl">Prompt Chain Management & AI Flavor Testing</p>
+          <p className="text-slate-400 font-medium text-xl">Design, Reorder, and Test Your Humor Prompt Chains</p>
         </div>
         <div className="flex gap-4">
            <div className="px-4 py-2 bg-slate-800/50 rounded-xl border border-slate-700 flex items-center gap-2">
