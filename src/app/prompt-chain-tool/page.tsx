@@ -32,6 +32,7 @@ export default function PromptChainTool() {
   const [results, setResults] = useState<any[]>([])
   const [status, setStatus] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
+  const [flavorSearch, setFlavorSearch] = useState('')
   
   const supabase = createClient()
 
@@ -103,6 +104,11 @@ export default function PromptChainTool() {
   }
 
   const selectedImage = images.find(img => img.id === selectedImageId)
+  
+  const filteredFlavors = flavors.filter(f => 
+    f.slug?.toLowerCase().includes(flavorSearch.toLowerCase()) || 
+    f.description?.toLowerCase().includes(flavorSearch.toLowerCase())
+  )
 
   return (
     <main className="p-8 max-w-7xl mx-auto space-y-12 animate-in fade-in duration-700">
@@ -161,28 +167,50 @@ export default function PromptChainTool() {
               <Layers className="w-24 h-24" />
             </div>
             <div className="relative z-10 space-y-6">
-              <h2 className="text-xl font-black text-foreground flex items-center gap-2 italic uppercase tracking-wider">
-                <span className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-[10px] font-bold">02</span>
-                Humor Flavor
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-black text-foreground flex items-center gap-2 italic uppercase tracking-wider">
+                  <span className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-[10px] font-bold">02</span>
+                  Humor Flavor
+                </h2>
+              </div>
               
-              <div className="space-y-3">
-                {flavors.map(flav => (
-                  <button
-                    key={flav.id}
-                    onClick={() => setSelectedFlavorId(flav.id)}
-                    className={cn(
-                      "w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center justify-between group/flav",
-                      selectedFlavorId === flav.id ? "bg-indigo-600/10 border-indigo-500 shadow-lg shadow-indigo-500/10" : "bg-foreground/5 border-border/50 hover:border-border"
-                    )}
-                  >
-                    <div>
-                      <h3 className={cn("font-black uppercase tracking-tight transition-colors", selectedFlavorId === flav.id ? "text-indigo-400" : "text-foreground")}>{flav.slug}</h3>
-                      <p className="text-xs text-foreground/50 font-medium">{flav.description}</p>
-                    </div>
-                    {selectedFlavorId === flav.id && <ChevronRight className="w-5 h-5 text-indigo-400" />}
-                  </button>
-                ))}
+              {/* SEARCH BAR */}
+              <div className="relative group/search">
+                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                  <ListTree className="w-4 h-4 text-indigo-400/50 group-focus-within/search:text-indigo-400 transition-colors" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search flavors..."
+                  value={flavorSearch}
+                  onChange={(e) => setFlavorSearch(e.target.value)}
+                  className="w-full bg-foreground/5 border border-border/50 rounded-2xl py-3 pl-11 pr-4 text-sm font-medium outline-none focus:border-indigo-500/50 focus:bg-foreground/[0.08] transition-all"
+                />
+              </div>
+
+              <div className="space-y-2 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
+                {filteredFlavors.length > 0 ? (
+                  filteredFlavors.map(flav => (
+                    <button
+                      key={flav.id}
+                      onClick={() => setSelectedFlavorId(flav.id)}
+                      className={cn(
+                        "w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center justify-between group/flav",
+                        selectedFlavorId === flav.id ? "bg-indigo-600/10 border-indigo-500 shadow-lg shadow-indigo-500/10" : "bg-foreground/5 border-border/50 hover:border-border"
+                      )}
+                    >
+                      <div className="min-w-0">
+                        <h3 className={cn("font-black uppercase tracking-tight transition-colors truncate", selectedFlavorId === flav.id ? "text-indigo-400" : "text-foreground")}>{flav.slug}</h3>
+                        <p className="text-[10px] text-foreground/50 font-medium truncate">{flav.description}</p>
+                      </div>
+                      {selectedFlavorId === flav.id && <ChevronRight className="w-4 h-4 text-indigo-400 shrink-0 ml-2" />}
+                    </button>
+                  ))
+                ) : (
+                  <div className="py-8 text-center bg-foreground/5 rounded-2xl border border-dashed border-border/50">
+                    <p className="text-[10px] font-black text-foreground/30 uppercase tracking-widest italic">No match found</p>
+                  </div>
+                )}
               </div>
             </div>
           </section>
@@ -224,7 +252,7 @@ export default function PromptChainTool() {
         <div className="lg:col-span-7 space-y-12">
           {/* CHAIN PREVIEW */}
           {selectedFlavorId && (
-            <section className="bg-card border border-border rounded-3xl p-8 backdrop-blur-xl">
+            <section className="bg-card border border-border rounded-3xl p-8 backdrop-blur-xl overflow-hidden">
               <h2 className="text-xs font-black text-foreground/50 uppercase tracking-[0.3em] mb-8 flex items-center gap-2">
                 <ListTree className="w-4 h-4" />
                 Prompt Chain Sequence
@@ -236,10 +264,10 @@ export default function PromptChainTool() {
                     <div className="w-10 h-10 rounded-full bg-background border-2 border-border flex items-center justify-center text-[10px] font-black text-blue-400 z-10 shrink-0 shadow-lg">
                       {idx + 1}
                     </div>
-                    <div className="flex-1 bg-background border border-border rounded-2xl p-4 hover:border-foreground/20 transition-colors space-y-2 shadow-sm">
+                    <div className="flex-1 min-w-0 bg-background border border-border rounded-2xl p-4 hover:border-foreground/20 transition-colors space-y-2 shadow-sm">
                       <div>
                         <span className="text-[10px] font-black text-foreground/40 uppercase tracking-widest block mb-1">System Prompt:</span>
-                        <p className="text-foreground text-sm font-medium italic truncate">"{step.llm_system_prompt}"</p>
+                        <p className="text-foreground text-sm font-medium italic line-clamp-2">"{step.llm_system_prompt}"</p>
                       </div>
                       <div>
                         <span className="text-[10px] font-black text-foreground/40 uppercase tracking-widest block mb-1">User Prompt:</span>
