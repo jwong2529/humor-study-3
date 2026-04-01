@@ -18,6 +18,7 @@ interface CRUDProps {
 export default function CRUDComponent({ tableKey }: CRUDProps) {
   const schema = tableSchemas[tableKey]
   const [data, setData] = useState<any[]>([])
+  const [lookups, setLookups] = useState<Record<string, any[]>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
@@ -26,11 +27,11 @@ export default function CRUDComponent({ tableKey }: CRUDProps) {
   const [formData, setFormData] = useState<any>({})
   const [mounted, setMounted] = useState(false)
 
+  const supabase = createClient()
+
   useEffect(() => {
     setMounted(true)
   }, [])
-
-  const supabase = createClient()
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -41,19 +42,31 @@ export default function CRUDComponent({ tableKey }: CRUDProps) {
       .limit(100)
 
     if (error) {
-       // fallback if created_datetime_utc doesn't exist
-       const { data: fallbackData, error: fallbackError } = await supabase
+       const { data: fallbackData } = await supabase
          .from(tableKey as string)
          .select('*')
          .limit(100)
-       
-       if (fallbackError) setError(fallbackError.message)
-       else setData(fallbackData || [])
+       setData(fallbackData || [])
     } else {
       setData(data || [])
     }
+
+    // Fetch lookups
+    const lookupTables = schema.columns
+      .filter(c => c.lookup)
+      .map(c => c.lookup!.table)
+    
+    const uniqueTables = Array.from(new Set(lookupTables))
+    const lookupMap: Record<string, any[]> = {}
+    
+    for (const table of uniqueTables) {
+      const { data: lookupData } = await supabase.from(table).select('*')
+      if (lookupData) lookupMap[table] = lookupData
+    }
+    setLookups(lookupMap)
+    
     setLoading(false)
-  }, [tableKey, supabase])
+  }, [tableKey, supabase, schema.columns])
 
   useEffect(() => {
     fetchData()
@@ -72,7 +85,16 @@ export default function CRUDComponent({ tableKey }: CRUDProps) {
   const startAdd = () => {
     setIsAdding(true)
     setEditingId(null)
-    setFormData({})
+    // Set some smart defaults for flavor steps
+    const defaults: any = {}
+    if (tableKey === 'humor_flavor_steps') {
+      defaults.llm_model_id = 16
+      defaults.llm_input_type_id = 2
+      defaults.llm_output_type_id = 2
+      defaults.humor_flavor_step_type_id = 3
+      defaults.llm_temperature = 0.7
+    }
+    setFormData(defaults)
   }
 
   const cancel = () => {
@@ -82,118 +104,126 @@ export default function CRUDComponent({ tableKey }: CRUDProps) {
   }
 
   const handleSave = async () => {
-    setLoading(true)
-    
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      alert('You must be logged in to perform this action.')
-      setLoading(false)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      alert('You must be logged in.')
       return
     }
 
     const payload = { ...formData }
-    payload.modified_by_user_id = user.id
-    if (!editingId) {
-      payload.created_by_user_id = user.id
-    }
+    payload.modified_by_user_id = session.user.id
+    if (!editingId) payload.created_by_user_id = session.user.id
 
     const { error } = editingId 
       ? await supabase.from(tableKey as string).update(payload).eq('id', editingId)
       : await supabase.from(tableKey as string).insert([payload])
 
-    if (error) {
-      alert(error.message)
-      setLoading(false)
-    } else {
-      cancel()
-      fetchData()
-    }
+    if (error) alert(error.message)
+    else { cancel(); fetchData(); }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this record?')) return
-    setLoading(true)
-    const { error } = await supabase.from(tableKey as string).delete().eq('id', id)
-    if (error) {
-      alert(error.message)
-      setLoading(false)
-    } else {
-      fetchData()
-    }
+    if (!confirm('Are you sure?')) return
+    await supabase.from(tableKey as string).delete().eq('id', id)
+    fetchData()
+  }
+
+  const getLookupLabel = (col: any, value: any) => {
+    if (!col.lookup || !lookups[col.lookup.table]) return value
+    const item = lookups[col.lookup.table].find(i => i[col.lookup.keyField].toString() === value?.toString())
+    return item ? item[col.lookup.labelField] : value
   }
 
   return (
     <div className="space-y-6">
       <header className="flex justify-between items-center gap-6">
         <div>
-          <h2 className="text-2xl font-black text-foreground">{schema.name}</h2>
-          <p className="text-sm text-foreground/50">Manage your {schema.name.toLowerCase()} records</p>
+          <h2 className="text-2xl font-black text-foreground uppercase italic tracking-tight">{schema.name}</h2>
+          <p className="text-sm text-foreground/50 font-medium">Manage your {schema.name.toLowerCase()} records</p>
         </div>
         {!schema.readOnly && !isAdding && (
           <button 
             onClick={startAdd}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl font-bold transition-all shadow-lg shadow-blue-500/20"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-2xl font-black transition-all shadow-xl shadow-blue-500/20 uppercase text-xs tracking-widest"
           >
             <Plus className="w-4 h-4" />
-            Add New
+            Add Record
           </button>
         )}
       </header>
 
-      {error && (
-        <div className="p-4 bg-red-900/20 border border-red-500/50 rounded-xl text-red-400 text-sm font-medium">
-          Error: {error}
-        </div>
-      )}
-
       {(isAdding || editingId) && (
-        <div className="bg-card border border-border rounded-2xl p-6 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300 shadow-xl">
-          <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
-            {isAdding ? <Plus className="w-4 h-4 text-blue-400" /> : <Pencil className="w-4 h-4 text-blue-400" />}
+        <div className="bg-card border border-border rounded-[2rem] p-8 space-y-6 animate-in fade-in slide-in-from-top-4 duration-500 shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+             {isAdding ? <Plus className="w-24 h-24" /> : <Pencil className="w-24 h-24" />}
+          </div>
+          
+          <h3 className="text-xl font-black text-foreground flex items-center gap-3 uppercase italic">
+            <div className="p-2 bg-blue-500/10 rounded-lg">
+               {isAdding ? <Plus className="w-5 h-5 text-blue-400" /> : <Pencil className="w-5 h-5 text-blue-400" />}
+            </div>
             {isAdding ? 'Add New Record' : 'Edit Record'}
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
             {schema.columns.filter(c => !c.hideInForm).map(col => (
-              <div key={col.key} className="space-y-1">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">{col.label}</label>
-                {col.type === 'textarea' ? (
+              <div key={col.key} className="space-y-2">
+                <label className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.2em] ml-1">{col.label}</label>
+                
+                {col.type === 'select' && col.lookup ? (
+                  <select
+                    value={formData[col.key] || ''}
+                    onChange={(e) => handleInputChange(col.key, col.key.includes('_id') ? e.target.value : Number(e.target.value))}
+                    className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:border-blue-500 outline-none appearance-none cursor-pointer font-bold"
+                  >
+                    <option value="">Select {col.label}...</option>
+                    {lookups[col.lookup.table]?.map(item => (
+                      <option key={item[col.lookup!.keyField]} value={item[col.lookup!.keyField]}>
+                        {item[col.lookup!.labelField]}
+                      </option>
+                    ))}
+                  </select>
+                ) : col.type === 'textarea' ? (
                   <textarea 
                     value={formData[col.key] || ''}
                     onChange={(e) => handleInputChange(col.key, e.target.value)}
-                    className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:border-blue-500 outline-none min-h-[100px]"
+                    placeholder={`Enter ${col.label.toLowerCase()}...`}
+                    className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:border-blue-500 outline-none min-h-[120px] font-medium placeholder:text-foreground/20"
                   />
                 ) : col.type === 'boolean' ? (
-                  <div className="flex items-center h-10">
+                  <div className="flex items-center h-12">
                     <input 
                       type="checkbox"
                       checked={!!formData[col.key]}
                       onChange={(e) => handleInputChange(col.key, e.target.checked)}
-                      className="w-4 h-4 bg-background border-border rounded"
+                      className="w-6 h-6 bg-background border-border rounded-lg checked:bg-blue-600 transition-all cursor-pointer"
                     />
                   </div>
                 ) : (
                   <input 
                     type={col.type === 'number' ? 'number' : 'text'}
                     value={formData[col.key] || ''}
-                    onChange={(e) => handleInputChange(col.key, col.type === 'number' ? Number(e.target.value) : e.target.value)}
-                    className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:border-blue-500 outline-none"
+                    placeholder={`Enter ${col.label.toLowerCase()}...`}
+                    onChange={(e) => handleInputChange(col.key, col.type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value)}
+                    className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:border-blue-500 outline-none font-bold placeholder:text-foreground/20"
                   />
                 )}
               </div>
             ))}
           </div>
-          <div className="flex gap-3 pt-2">
+
+          <div className="flex gap-4 pt-4 border-t border-border/50">
             <button 
               onClick={handleSave} 
               disabled={loading}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl font-bold transition-all disabled:opacity-50"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-2xl font-black transition-all shadow-xl shadow-blue-500/20 uppercase text-xs tracking-widest disabled:opacity-50"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Save Changes
             </button>
             <button 
               onClick={cancel}
-              className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-xl font-bold transition-all"
+              className="flex items-center gap-2 bg-foreground/10 hover:bg-foreground/20 text-foreground px-8 py-3 rounded-2xl font-black transition-all uppercase text-xs tracking-widest"
             >
               <X className="w-4 h-4" />
               Cancel
@@ -202,64 +232,75 @@ export default function CRUDComponent({ tableKey }: CRUDProps) {
         </div>
       )}
 
-      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+      <div className="bg-card border border-border rounded-[2.5rem] shadow-2xl relative">
+        {/* SCROLL INDICATOR GRADIENT */}
+        <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-card to-transparent pointer-events-none z-10 opacity-50 block md:hidden lg:block lg:opacity-30" />
+        
+        <div className="overflow-x-auto custom-scrollbar-h relative rounded-[2.5rem]">
+          <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
               <tr className="bg-foreground/5 border-b border-border">
                 {schema.columns.map(col => (
-                  <th key={col.key} className="p-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">{col.label}</th>
+                  <th key={col.key} className="p-6 text-[10px] font-black text-foreground/40 uppercase tracking-[0.2em] whitespace-nowrap">{col.label}</th>
                 ))}
-                {!schema.readOnly && <th className="p-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">Actions</th>}
+                {!schema.readOnly && (
+                  <th className="p-6 text-[10px] font-black text-foreground/40 uppercase tracking-[0.2em] sticky right-0 bg-card/90 backdrop-blur-md z-20 shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.3)]">
+                    Actions
+                  </th>
+                )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/50">
+            <tbody className="divide-y divide-border/30">
               {loading && !data.length ? (
                 <tr>
-                  <td colSpan={schema.columns.length + (schema.readOnly ? 0 : 1)} className="p-8 text-center">
-                    <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500 mb-2" />
-                    <p className="text-slate-500 text-sm">Loading records...</p>
+                  <td colSpan={schema.columns.length + (schema.readOnly ? 0 : 1)} className="p-20 text-center">
+                    <Loader2 className="w-12 h-12 animate-spin mx-auto text-blue-500 mb-4" />
+                    <p className="text-foreground/40 font-black uppercase tracking-widest text-xs">Accessing Archives...</p>
                   </td>
                 </tr>
               ) : data.length === 0 ? (
                 <tr>
-                  <td colSpan={schema.columns.length + (schema.readOnly ? 0 : 1)} className="p-8 text-center text-slate-500 text-sm italic">
-                    No records found in this table.
+                  <td colSpan={schema.columns.length + (schema.readOnly ? 0 : 1)} className="p-20 text-center text-foreground/30 font-bold italic">
+                    No records found in this sector.
                   </td>
                 </tr>
               ) : (
                 data.map((item) => (
                   <tr key={item.id} className="hover:bg-foreground/5 transition-colors group">
                     {schema.columns.map(col => (
-                      <td key={col.key} className="p-4 text-sm">
+                      <td key={col.key} className="p-6 text-sm">
                         {col.type === 'boolean' ? (
                           item[col.key] ? (
-                            <span className="bg-green-500/10 text-green-400 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Yes</span>
+                            <span className="bg-green-500/10 text-green-400 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter italic border border-green-500/20">Active</span>
                           ) : (
-                            <span className="bg-slate-500/10 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">No</span>
+                            <span className="bg-foreground/5 text-foreground/30 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter italic border border-border">Inactive</span>
                           )
                         ) : col.type === 'date' ? (
-                          <span className="text-xs text-slate-500">{mounted && item[col.key] ? new Date(item[col.key]).toLocaleDateString() : (item[col.key] ? 'Loading...' : 'N/A')}</span>
+                          <span className="text-[11px] font-bold text-foreground/40 uppercase tabular-nums">{mounted && item[col.key] ? new Date(item[col.key]).toLocaleDateString() : 'N/A'}</span>
                         ) : (
-                          <div className={cn("max-w-[200px] truncate", col.mono && "font-mono text-xs text-blue-400")}>
-                            {item[col.key]?.toString() || '-'}
+                          <div className={cn(
+                            "max-w-[250px] truncate font-medium", 
+                            col.mono && "font-mono text-[11px] text-blue-400 bg-blue-500/5 px-2 py-0.5 rounded border border-blue-500/10",
+                            col.type === 'select' && "text-blue-200 font-bold italic"
+                          )}>
+                            {col.type === 'select' ? getLookupLabel(col, item[col.key]) : (item[col.key]?.toString() || '-')}
                           </div>
                         )}
                       </td>
                     ))}
                     {!schema.readOnly && (
-                      <td className="p-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <td className="p-6 flex gap-3 sticky right-0 bg-card/90 backdrop-blur-md z-20 group-hover:bg-foreground/5 transition-colors shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.3)]">
                         <button 
                           onClick={() => startEdit(item)}
-                          className="p-1.5 rounded-lg bg-blue-600/10 text-blue-400 hover:bg-blue-600 hover:text-white transition-all"
+                          className="p-2 rounded-xl bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white transition-all shadow-lg"
                         >
-                          <Pencil className="w-3.5 h-3.5" />
+                          <Pencil className="w-4 h-4" />
                         </button>
                         <button 
                           onClick={() => handleDelete(item.id)}
-                          className="p-1.5 rounded-lg bg-red-600/10 text-red-400 hover:bg-red-600 hover:text-white transition-all"
+                          className="p-2 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-600 hover:text-white transition-all shadow-lg"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </td>
                     )}
@@ -269,6 +310,25 @@ export default function CRUDComponent({ tableKey }: CRUDProps) {
             </tbody>
           </table>
         </div>
+
+        <style jsx global>{`
+          .custom-scrollbar-h::-webkit-scrollbar {
+            height: 10px;
+          }
+          .custom-scrollbar-h::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 20px;
+            margin: 0 40px;
+          }
+          .custom-scrollbar-h::-webkit-scrollbar-thumb {
+            background: linear-gradient(to right, #3b82f6, #6366f1);
+            border-radius: 20px;
+            border: 2px solid rgba(15, 23, 42, 0.5);
+          }
+          .custom-scrollbar-h::-webkit-scrollbar-thumb:hover {
+            background: #60a5fa;
+          }
+        `}</style>
       </div>
     </div>
   )

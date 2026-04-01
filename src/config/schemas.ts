@@ -1,9 +1,14 @@
 export interface Column {
   key: string
   label: string
-  type: 'text' | 'number' | 'boolean' | 'date' | 'textarea'
+  type: 'text' | 'number' | 'boolean' | 'date' | 'textarea' | 'select'
   mono?: boolean
   hideInForm?: boolean
+  lookup?: {
+    table: string
+    keyField: string
+    labelField: string
+  }
 }
 
 export interface TableSchema {
@@ -51,15 +56,40 @@ export const tableSchemas: Record<string, TableSchema> = {
     readOnly: false,
     columns: [
       { key: 'id', label: 'ID', type: 'text', mono: true, hideInForm: true },
-      { key: 'humor_flavor_id', label: 'Flavor ID', type: 'text' },
+      { 
+        key: 'humor_flavor_id', 
+        label: 'Humor Flavor', 
+        type: 'select',
+        lookup: { table: 'humor_flavors', keyField: 'id', labelField: 'slug' }
+      },
       { key: 'order_by', label: 'Order', type: 'number' },
       { key: 'llm_system_prompt', label: 'System Prompt', type: 'textarea' },
       { key: 'llm_user_prompt', label: 'User Prompt', type: 'textarea' },
       { key: 'llm_temperature', label: 'Temperature (0-1)', type: 'number' },
-      { key: 'llm_model_id', label: 'Model ID', type: 'text' },
-      { key: 'llm_input_type_id', label: 'Input Type ID', type: 'number' },
-      { key: 'llm_output_type_id', label: 'Output Type ID', type: 'number' },
-      { key: 'humor_flavor_step_type_id', label: 'Step Type ID', type: 'number' },
+      { 
+        key: 'llm_model_id', 
+        label: 'LLM Model', 
+        type: 'select',
+        lookup: { table: 'llm_models', keyField: 'id', labelField: 'name' }
+      },
+      { 
+        key: 'llm_input_type_id', 
+        label: 'Input Type', 
+        type: 'select',
+        lookup: { table: 'llm_input_types', keyField: 'id', labelField: 'slug' }
+      },
+      { 
+        key: 'llm_output_type_id', 
+        label: 'Output Type', 
+        type: 'select',
+        lookup: { table: 'llm_output_types', keyField: 'id', labelField: 'slug' }
+      },
+      { 
+        key: 'humor_flavor_step_type_id', 
+        label: 'Step Type', 
+        type: 'select',
+        lookup: { table: 'humor_flavor_step_types', keyField: 'id', labelField: 'slug' }
+      },
     ]
   },
   terms: {
@@ -88,8 +118,18 @@ export const tableSchemas: Record<string, TableSchema> = {
     readOnly: true,
     columns: [
       { key: 'id', label: 'ID', type: 'text', mono: true },
-      { key: 'image_id', label: 'Image ID', type: 'text' },
-      { key: 'profile_id', label: 'Profile ID', type: 'text' },
+      { 
+        key: 'image_id', 
+        label: 'Image', 
+        type: 'select',
+        lookup: { table: 'images', keyField: 'id', labelField: 'url' }
+      },
+      { 
+        key: 'profile_id', 
+        label: 'Profile', 
+        type: 'select',
+        lookup: { table: 'profiles', keyField: 'id', labelField: 'email' }
+      },
       { key: 'created_datetime_utc', label: 'Created', type: 'date' },
     ]
   },
@@ -98,7 +138,12 @@ export const tableSchemas: Record<string, TableSchema> = {
     readOnly: false,
     columns: [
       { key: 'id', label: 'ID', type: 'text', mono: true, hideInForm: true },
-      { key: 'image_id', label: 'Image ID', type: 'text' },
+      { 
+        key: 'image_id', 
+        label: 'Image', 
+        type: 'select',
+        lookup: { table: 'images', keyField: 'id', labelField: 'url' }
+      },
       { key: 'caption', label: 'Caption', type: 'text' },
       { key: 'explanation', label: 'Explanation', type: 'textarea' },
       { key: 'priority', label: 'Priority', type: 'number' },
@@ -144,7 +189,12 @@ export const tableSchemas: Record<string, TableSchema> = {
     readOnly: false,
     columns: [
       { key: 'id', label: 'ID', type: 'text', mono: true, hideInForm: true },
-      { key: 'humor_flavor_id', label: 'Flavor ID', type: 'text' },
+      { 
+        key: 'humor_flavor_id', 
+        label: 'Humor Flavor', 
+        type: 'select',
+        lookup: { table: 'humor_flavors', keyField: 'id', labelField: 'slug' }
+      },
       { key: 'caption_count', label: 'Caption Count', type: 'number' },
     ]
   },
