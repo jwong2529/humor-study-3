@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { Plus, Pencil, Trash2, Save, X, Loader2, ChevronRight } from 'lucide-react'
+import { Plus, Pencil, Trash2, Save, X, Loader2, ChevronRight, Copy } from 'lucide-react'
 import { tableSchemas } from '@/config/schemas'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
@@ -126,6 +126,61 @@ export default function CRUDComponent({ tableKey }: CRUDProps) {
     if (!confirm('Are you sure?')) return
     await supabase.from(tableKey as string).delete().eq('id', id)
     fetchData()
+  }
+
+  const handleDuplicate = async (item: any) => {
+    const nameField = schema.columns.find(c => c.key === 'slug' || c.key === 'name' || c.key === 'email' || c.key === 'term')?.key || 'id'
+    const newName = window.prompt(`Enter unique value for ${nameField}:`, `${item[nameField]}-copy`)
+    if (!newName) return
+
+    setLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) throw new Error("Logged out")
+
+      const { id, created_datetime_utc, ...rest } = item
+      const payload = { 
+        ...rest, 
+        [nameField]: newName,
+        created_by_user_id: session.user.id,
+        modified_by_user_id: session.user.id
+      }
+
+      const { data: newRecord, error: insertError } = await supabase
+        .from(tableKey as string)
+        .insert([payload])
+        .select()
+        .single()
+
+      if (insertError) throw insertError
+
+      if (tableKey === 'humor_flavors') {
+        const { data: originalSteps } = await supabase
+          .from('humor_flavor_steps')
+          .select('*')
+          .eq('humor_flavor_id', item.id)
+
+        if (originalSteps && originalSteps.length > 0) {
+          const newSteps = originalSteps.map(step => {
+            const { id, created_datetime_utc, humor_flavor_id, ...restStep } = step
+            return {
+              ...restStep,
+              humor_flavor_id: newRecord.id,
+              created_by_user_id: session.user.id,
+              modified_by_user_id: session.user.id
+            }
+          })
+          const { error: stepsError } = await supabase.from('humor_flavor_steps').insert(newSteps)
+          if (stepsError) throw stepsError
+        }
+      }
+
+      fetchData()
+    } catch (err: any) {
+      alert(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const getLookupLabel = (col: any, value: any) => {
@@ -295,6 +350,13 @@ export default function CRUDComponent({ tableKey }: CRUDProps) {
                           className="p-2 rounded-xl bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white transition-all shadow-lg"
                         >
                           <Pencil className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDuplicate(item)}
+                          className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all shadow-lg"
+                          title="Duplicate"
+                        >
+                          <Copy className="w-4 h-4" />
                         </button>
                         <button 
                           onClick={() => handleDelete(item.id)}

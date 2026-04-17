@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Layers,
-  ListTree
+  ListTree,
+  Copy
 } from 'lucide-react'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
@@ -63,6 +64,81 @@ export default function PromptChainTool() {
     }
     fetchSteps()
   }, [selectedFlavorId, supabase])
+
+  const handleDuplicateFlavor = async (flavor: any) => {
+    const newSlug = window.prompt('Enter unique slug for the new flavor copy:', `${flavor.slug || 'flavor'}-copy`)
+    if (!newSlug) return
+
+    setLoading(true)
+    setError(null)
+    setStatus(`Duplicating flavor "${flavor.slug}"...`)
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const userId = session?.user?.id
+
+      // 1. Create new flavor
+      const flavorPayload: any = { 
+        slug: newSlug, 
+        description: flavor.description 
+      }
+      if (userId) {
+        flavorPayload.created_by_user_id = userId
+        flavorPayload.modified_by_user_id = userId
+      }
+
+      const { data: newFlavor, error: flavorError } = await supabase
+        .from('humor_flavors')
+        .insert([flavorPayload])
+        .select()
+        .single()
+
+      if (flavorError) throw flavorError
+
+      // 2. Fetch original steps
+      const { data: originalSteps, error: fetchStepsError } = await supabase
+        .from('humor_flavor_steps')
+        .select('*')
+        .eq('humor_flavor_id', flavor.id)
+        .order('order_by')
+
+      if (fetchStepsError) throw fetchStepsError
+
+      // 3. Create new steps
+      if (originalSteps && originalSteps.length > 0) {
+        const newSteps = originalSteps.map(step => {
+          const { id, created_datetime_utc, humor_flavor_id, ...rest } = step
+          const stepPayload = {
+            ...rest,
+            humor_flavor_id: newFlavor.id
+          }
+          if (userId) {
+            stepPayload.created_by_user_id = userId
+            stepPayload.modified_by_user_id = userId
+          }
+          return stepPayload
+        })
+
+        const { error: insertStepsError } = await supabase
+          .from('humor_flavor_steps')
+          .insert(newSteps)
+
+        if (insertStepsError) throw insertStepsError
+      }
+
+      // 4. Refresh flavors list
+      const { data: flavData } = await supabase.from('humor_flavors').select('*').order('slug')
+      if (flavData) setFlavors(flavData)
+      
+      setSelectedFlavorId(newFlavor.id)
+      setStatus(`Successfully duplicated flavor to "${newSlug}"`)
+    } catch (err: any) {
+      setError(`Duplication failed: ${err.message}`)
+      setStatus('')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleGenerate = async () => {
     if (!selectedImageId || !selectedFlavorId) return
@@ -203,7 +279,19 @@ export default function PromptChainTool() {
                         <h3 className={cn("font-black uppercase tracking-tight transition-colors truncate", selectedFlavorId === flav.id ? "text-indigo-400" : "text-foreground")}>{flav.slug}</h3>
                         <p className="text-[10px] text-foreground/50 font-medium truncate">{flav.description}</p>
                       </div>
-                      {selectedFlavorId === flav.id && <ChevronRight className="w-4 h-4 text-indigo-400 shrink-0 ml-2" />}
+                      <div className="flex items-center gap-2">
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDuplicateFlavor(flav);
+                          }}
+                          className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400/70 hover:bg-indigo-500/30 hover:text-indigo-400 transition-all cursor-pointer"
+                          title="Duplicate flavor"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </div>
+                        {selectedFlavorId === flav.id && <ChevronRight className="w-4 h-4 text-indigo-400 shrink-0" />}
+                      </div>
                     </button>
                   ))
                 ) : (
@@ -253,10 +341,22 @@ export default function PromptChainTool() {
           {/* CHAIN PREVIEW */}
           {selectedFlavorId && (
             <section className="bg-card border border-border rounded-3xl p-8 backdrop-blur-xl overflow-hidden">
-              <h2 className="text-xs font-black text-foreground/50 uppercase tracking-[0.3em] mb-8 flex items-center gap-2">
-                <ListTree className="w-4 h-4" />
-                Prompt Chain Sequence
-              </h2>
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-xs font-black text-foreground/50 uppercase tracking-[0.3em] flex items-center gap-2">
+                  <ListTree className="w-4 h-4" />
+                  Prompt Chain Sequence
+                </h2>
+                <button
+                  onClick={() => {
+                    const flav = flavors.find(f => f.id === selectedFlavorId);
+                    if (flav) handleDuplicateFlavor(flav);
+                  }}
+                  className="flex items-center gap-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-500/5"
+                >
+                  <Copy className="w-3 h-3" />
+                  Duplicate Flavor
+                </button>
+              </div>
               <div className="space-y-6 relative">
                 <div className="absolute left-[19px] top-6 bottom-6 w-0.5 bg-border/50"></div>
                 {steps.map((step, idx) => (
