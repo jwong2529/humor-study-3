@@ -28,7 +28,13 @@ const navItems = [
   ]},
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ 
+  isOpen, 
+  onClose 
+}: { 
+  isOpen?: boolean; 
+  onClose?: () => void; 
+}) {
   const pathname = usePathname()
 
   const isAuthPage = pathname?.startsWith('/auth') || pathname === '/login' || pathname === '/unauthorized'
@@ -36,8 +42,17 @@ export default function Sidebar() {
   if (isAuthPage) return null
 
   return (
-    <aside className="w-64 bg-card border-r border-border flex flex-col fixed inset-y-0 z-50 overflow-y-auto custom-scrollbar shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)]">
+    <aside className={cn(
+      "w-64 bg-card border-r border-border flex flex-col fixed inset-y-0 z-50 overflow-y-auto custom-scrollbar shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] transition-transform duration-300 lg:translate-x-0",
+      isOpen ? "translate-x-0" : "-translate-x-full"
+    )}>
       <div className="p-6">
+        <div className="flex items-center justify-between mb-2 lg:hidden">
+          <p className="text-[10px] text-foreground/40 uppercase tracking-[0.2em] font-bold italic">Menu</p>
+          <button onClick={onClose} className="p-1 -mr-1 text-foreground/40 hover:text-foreground">
+            <Reply className="w-4 h-4" />
+          </button>
+        </div>
         <h1 className="text-xl font-black text-foreground tracking-tight uppercase italic">Flavor Factory</h1>
         <div className="flex items-center justify-between mt-1">
           <p className="text-[10px] text-foreground/40 uppercase tracking-[0.2em] font-bold">Project 03</p>
@@ -58,6 +73,7 @@ export default function Sidebar() {
                   <Link
                     key={item.name}
                     href={item.href}
+                    onClick={() => onClose?.()}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
                       isActive 
